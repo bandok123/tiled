@@ -39,6 +39,7 @@ macx {
 }
 
 SOURCES += aboutdialog.cpp \
+    abstractimagetool.cpp \
     abstractobjecttool.cpp \
     abstracttiletool.cpp \
     abstracttool.cpp \
@@ -64,7 +65,7 @@ SOURCES += aboutdialog.cpp \
     changeproperties.cpp \
     changetileanimation.cpp \
     changetileobjectgroup.cpp \
-    changetileselection.cpp \
+    changeselectedarea.cpp \
     changetileterrain.cpp \
     clipboardmanager.cpp \
     colorbutton.cpp \
@@ -74,7 +75,14 @@ SOURCES += aboutdialog.cpp \
     commanddialog.cpp \
     commandlineparser.cpp \
     consoledock.cpp \
+    createellipseobjecttool.cpp \
+    createmultipointobjecttool.cpp \
     createobjecttool.cpp \
+    createpolygonobjecttool.cpp \
+    createpolylineobjecttool.cpp \
+    createrectangleobjecttool.cpp \
+    createscalableobjecttool.cpp \
+    createtileobjecttool.cpp \
     documentmanager.cpp \
     editpolygontool.cpp \
     editterraindialog.cpp \
@@ -86,6 +94,7 @@ SOURCES += aboutdialog.cpp \
     flipmapobjects.cpp \
     geometry.cpp \
     imagelayeritem.cpp \
+    imagemovementtool.cpp \
     languagemanager.cpp \
     layerdock.cpp \
     layermodel.cpp \
@@ -160,6 +169,7 @@ SOURCES += aboutdialog.cpp \
     zoomable.cpp
 
 HEADERS += aboutdialog.h \
+    abstractimagetool.h \
     abstractobjecttool.h \
     abstracttiletool.h \
     abstracttool.h \
@@ -185,7 +195,7 @@ HEADERS += aboutdialog.h \
     changeproperties.h \
     changetileanimation.h \
     changetileobjectgroup.h \
-    changetileselection.h \
+    changeselectedarea.h \
     changetileterrain.h \
     clipboardmanager.h \
     colorbutton.h \
@@ -195,7 +205,14 @@ HEADERS += aboutdialog.h \
     command.h \
     commandlineparser.h \
     consoledock.h \
+    createellipseobjecttool.h \
+    createmultipointobjecttool.h \
     createobjecttool.h \
+    createpolygonobjecttool.h \
+    createpolylineobjecttool.h \
+    createrectangleobjecttool.h \
+    createscalableobjecttool.h \
+    createtileobjecttool.h \
     documentmanager.h \
     editpolygontool.h \
     editterraindialog.h \
@@ -207,6 +224,7 @@ HEADERS += aboutdialog.h \
     flipmapobjects.h \
     geometry.h \
     imagelayeritem.h \
+    imagemovementtool.h \
     languagemanager.h \
     layerdock.h \
     layermodel.h \
@@ -342,6 +360,7 @@ macx {
 }
 win32 {
     RC_FILE = tiled.rc
+    PRECOMPILED_HEADER = pch.h
 }
 win32:INCLUDEPATH += .
 contains(CONFIG, static) {

@@ -1,6 +1,6 @@
 /*
- * changetileselection.h
- * Copyright 2009, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
+ * createpolygonobjecttool.h
+ * Copyright 2014, Martin Ziel <martin.ziel.com>
  *
  * This file is part of Tiled.
  *
@@ -18,38 +18,27 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHANGETILESELECTION_H
-#define CHANGETILESELECTION_H
+#ifndef CREATEPOLYGONOBJECTTOOL_H
+#define CREATEPOLYGONOBJECTTOOL_H
 
-#include <QRegion>
-#include <QUndoCommand>
+#include "createmultipointobjecttool.h"
 
 namespace Tiled {
+
 namespace Internal {
 
-class MapDocument;
-
-class ChangeTileSelection : public QUndoCommand
+class CreatePolygonObjectTool: public CreateMultipointObjectTool
 {
+    Q_OBJECT
 public:
-    /**
-     * Creates an undo command that sets the selection of \a mapDocument to
-     * the given \a selection.
-     */
-    ChangeTileSelection(MapDocument *mapDocument,
-                        const QRegion &selection);
-
-    void undo();
-    void redo();
-
-private:
-    void swapSelection();
-
-    MapDocument *mMapDocument;
-    QRegion mSelection;
+    CreatePolygonObjectTool(QObject *parent);
+    void languageChanged();
+protected:
+    MapObject *createNewMapObject();
+    void finishNewMapObject();
 };
 
-} // namespace Internal
-} // namespace Tiled
+}
+}
 
-#endif // CHANGETILESELECTION_H
+#endif // CREATEPOLYGONOBJECTTOOL_H

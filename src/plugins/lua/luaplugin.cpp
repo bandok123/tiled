@@ -33,6 +33,14 @@
 
 #include <QFile>
 
+#if QT_VERSION >= 0x050100
+#define HAS_QSAVEFILE_SUPPORT
+#endif
+
+#ifdef HAS_QSAVEFILE_SUPPORT
+#include <QSaveFile>
+#endif
+
 /**
  * See below for an explanation of the different formats. One of these needs
  * to be defined.
@@ -50,7 +58,11 @@ LuaPlugin::LuaPlugin()
 
 bool LuaPlugin::write(const Map *map, const QString &fileName)
 {
+#ifdef HAS_QSAVEFILE_SUPPORT
+    QSaveFile file(fileName);
+#else
     QFile file(fileName);
+#endif
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         mError = tr("Could not open file for writing.");
         return false;
@@ -63,7 +75,19 @@ bool LuaPlugin::write(const Map *map, const QString &fileName)
     writeMap(writer, map);
     writer.writeEndDocument();
 
-    return !writer.hasError();
+    if (file.error() != QFile::NoError) {
+        mError = file.errorString();
+        return false;
+    }
+
+#ifdef HAS_QSAVEFILE_SUPPORT
+    if (!file.commit()) {
+        mError = file.errorString();
+        return false;
+    }
+#endif
+
+    return true;
 }
 
 QString LuaPlugin::nameFilter() const
@@ -90,6 +114,20 @@ void LuaPlugin::writeMap(LuaTableWriter &writer, const Map *map)
     writer.writeKeyAndValue("height", map->height());
     writer.writeKeyAndValue("tilewidth", map->tileWidth());
     writer.writeKeyAndValue("tileheight", map->tileHeight());
+
+    const QColor &backgroundColor = map->backgroundColor();
+    if (backgroundColor.isValid()) {
+        // Example: backgroundcolor = { 255, 200, 100 }
+        writer.writeStartTable("backgroundcolor");
+        writer.setSuppressNewlines(true);
+        writer.writeValue(backgroundColor.red());
+        writer.writeValue(backgroundColor.green());
+        writer.writeValue(backgroundColor.blue());
+        if (backgroundColor.alpha() != 255)
+            writer.writeValue(backgroundColor.alpha());
+        writer.writeEndTable();
+        writer.setSuppressNewlines(false);
+    }
 
     writeProperties(writer, map->properties());
 
@@ -141,6 +179,8 @@ static bool includeTile(const Tile *tile)
     if (!tile->properties().isEmpty())
         return true;
     if (!tile->imageSource().isEmpty())
+        return true;
+    if (tile->objectGroup())
         return true;
     if (tile->isAnimated())
         return true;
@@ -213,6 +253,9 @@ void LuaPlugin::writeTileset(LuaTableWriter &writer, const Tileset *tileset,
             }
         }
 
+        if (ObjectGroup *objectGroup = tile->objectGroup())
+            writeObjectGroup(writer, objectGroup, "objectGroup");
+
         if (tile->isAnimated()) {
             const QVector<Frame> &frames = tile->frames();
 
@@ -263,9 +306,13 @@ void LuaPlugin::writeTileLayer(LuaTableWriter &writer,
 }
 
 void LuaPlugin::writeObjectGroup(LuaTableWriter &writer,
-                                 const ObjectGroup *objectGroup)
+                                 const ObjectGroup *objectGroup,
+                                 const QByteArray &key)
 {
-    writer.writeStartTable();
+    if (key.isEmpty())
+        writer.writeStartTable();
+    else
+        writer.writeStartTable(key);
 
     writer.writeKeyAndValue("type", "objectgroup");
     writer.writeKeyAndValue("name", objectGroup->name());

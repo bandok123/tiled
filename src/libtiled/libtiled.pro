@@ -16,6 +16,7 @@ win32 {
     lessThan(QT_MAJOR_VERSION, 5) {
         INCLUDEPATH += ../zlib
     }
+    QMAKE_PROJECT_NAME = libtiled
 } else {
     # On other platforms it is necessary to link to zlib explicitly
     LIBS += -lz
@@ -72,9 +73,4 @@ contains(INSTALL_HEADERS, yes) {
     headers.files = $${HEADERS}
     headers.path = $${PREFIX}/include/tiled
     INSTALLS += headers
-}
-
-macx {
-    contains(QT_CONFIG, ppc):CONFIG += x86 \
-        ppc
 }

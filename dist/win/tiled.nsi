@@ -17,6 +17,7 @@ SetCompressor /FINAL /SOLID lzma
 !define P_NORM "tiled"                        ; Program name (normalized)
 !define ROOT_DIR "..\.."                      ; Program root directory
 !define BUILD_DIR $%TILED_BUILD_DIR%          ; Build dir
+!define SYSTEM_DIR "C:\windows\system32"
 !define ADD_REMOVE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Tiled"
 !define PRODUCT_REG_KEY "Tiled Map Editor"
 
@@ -144,7 +145,7 @@ Function checkAlreadyInstalled
         ClearErrors
         ReadRegStr $R0 HKLM "${ADD_REMOVE}" "UninstallString"
 		DetailPrint "Uninstalling previously installed version"
-        ExecWait '$R0 _?=$INSTDIR'
+        ExecWait '$R0'
 		IfErrors OnError 0
 		Return
 	OnError:
@@ -182,11 +183,11 @@ File ${QT_DIR}\bin\Qt5Core.dll
 File ${QT_DIR}\bin\Qt5Gui.dll
 File ${QT_DIR}\bin\Qt5Widgets.dll
 File ${QT_DIR}\bin\Qt5OpenGL.dll
-File ${QT_DIR}\bin\libEGL.dll
-File ${QT_DIR}\bin\libGLESv2.dll
-File ${QT_DIR}\bin\icuin51.dll
-File ${QT_DIR}\bin\icuuc51.dll
-File ${QT_DIR}\bin\icudt51.dll
+File ${QT_DIR}\bin\icuin52.dll
+File ${QT_DIR}\bin\icuuc52.dll
+File ${QT_DIR}\bin\icudt52.dll
+File ${SYSTEM_DIR}\MSVCP120.DLL
+File ${SYSTEM_DIR}\MSVCR120.DLL
 File ${ROOT_DIR}\src\tiled\images\tiled-icon.ico
 File ${ROOT_DIR}\dist\win\qt.conf
 
@@ -261,9 +262,11 @@ Delete $INSTDIR\Qt5Widgets.dll
 Delete $INSTDIR\Qt5OpenGL.dll
 Delete $INSTDIR\libEGL.dll
 Delete $INSTDIR\libGLESv2.dll
-Delete $INSTDIR\icuin51.dll
-Delete $INSTDIR\icuuc51.dll
-Delete $INSTDIR\icudt51.dll
+Delete $INSTDIR\icuin52.dll
+Delete $INSTDIR\icuuc52.dll
+Delete $INSTDIR\icudt52.dll
+Delete $INSTDIR\MSVCP120.DLL
+Delete $INSTDIR\MSVCR120.DLL
 Delete $INSTDIR\tiled-icon.ico
 Delete $INSTDIR\qt.conf
 Delete $INSTDIR\uninstall.exe

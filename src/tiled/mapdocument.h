@@ -1,6 +1,6 @@
 /*
  * mapdocument.h
- * Copyright 2008-2013, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
+ * Copyright 2008-2014, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
  * Copyright 2009, Jeff Bland <jeff@teamphobic.com>
  * Copyright 2011, Stefan Beller <stefanbeller@googlemail.com
  *
@@ -27,6 +27,7 @@
 #include "tiled.h"
 #include "mapobject.h"
 
+#include <QDateTime>
 #include <QList>
 #include <QObject>
 #include <QRegion>
@@ -43,6 +44,7 @@ namespace Tiled {
 class Map;
 class MapObject;
 class MapRenderer;
+class MapReaderInterface;
 class Terrain;
 class Tile;
 class Tileset;
@@ -98,7 +100,19 @@ public:
      */
     bool save(const QString &fileName, QString *error = 0);
 
+    /**
+     * Loads a map and returns a MapDocument instance on success. Returns 0
+     * on error and sets the \a error message.
+     */
+    static MapDocument *load(const QString &fileName,
+                             MapReaderInterface *mapReader = 0,
+                             QString *error = 0);
+
     QString fileName() const { return mFileName; }
+
+    QString readerPluginFileName() const { return mReaderPluginFileName; }
+    void setReaderPluginFileName(const QString &readerPluginFileName)
+    { mReaderPluginFileName = readerPluginFileName; }
 
     QString writerPluginFileName() const { return mWriterPluginFileName; }
     void setWriterPluginFileName(const QString &writerPluginFileName)
@@ -107,6 +121,8 @@ public:
     QString displayName() const;
 
     bool isModified() const;
+
+    QDateTime lastSaved() const { return mLastSaved; }
 
     /**
      * Returns the map instance. Be aware that directly modifying the map will
@@ -197,12 +213,12 @@ public:
     /**
      * Returns the selected area of tiles.
      */
-    const QRegion &tileSelection() const { return mTileSelection; }
+    const QRegion &selectedArea() const { return mSelectedArea; }
 
     /**
      * Sets the selected area of tiles.
      */
-    void setTileSelection(const QRegion &selection);
+    void setSelectedArea(const QRegion &selection);
 
     /**
      * Returns the list of selected objects.
@@ -256,14 +272,17 @@ public:
     void emitEditCurrentObject();
 
 signals:
-    void fileNameChanged();
+    void fileNameChanged(const QString &fileName,
+                         const QString &oldFileName);
     void modifiedChanged();
+
+    void saved();
 
     /**
      * Emitted when the selected tile region changes. Sends the currently
      * selected region and the previously selected region.
      */
-    void tileSelectionChanged(const QRegion &newSelection,
+    void selectedAreaChanged(const QRegion &newSelection,
                               const QRegion &oldSelection);
 
     /**
@@ -380,15 +399,16 @@ private:
 
     /*
      * The filename of a plugin is unique. So it can be used to determine
-     * the right plugin to be used for saving the map again.
+     * the right plugin to be used for saving or reloading the map.
      * The nameFilter of a plugin can not be used, since it's translatable.
      * The filename of a plugin must not change while maps are open using this
      * plugin.
      */
+    QString mReaderPluginFileName;
     QString mWriterPluginFileName;
     Map *mMap;
     LayerModel *mLayerModel;
-    QRegion mTileSelection;
+    QRegion mSelectedArea;
     QList<MapObject*> mSelectedObjects;
     QList<Tile*> mSelectedTiles;
     Object *mCurrentObject;             /**< Current properties object. */
@@ -397,6 +417,7 @@ private:
     MapObjectModel *mMapObjectModel;
     TerrainModel *mTerrainModel;
     QUndoStack *mUndoStack;
+    QDateTime mLastSaved;
 };
 
 /**
